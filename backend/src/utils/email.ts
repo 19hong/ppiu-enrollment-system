@@ -15,10 +15,11 @@ const transporter = nodemailer.createTransport({
     user: config.smtp.user,
     pass: config.smtp.pass,
   },
+  connectionTimeout: 5000,
 });
 
 export async function sendEmail({ to, subject, html }: EmailOptions): Promise<void> {
-  if (config.nodeEnv === 'development') {
+  if (config.nodeEnv === 'development' || !config.smtp.user || !config.smtp.pass) {
     console.log(`[DEV EMAIL] To: ${to}, Subject: ${subject}`);
     return;
   }
