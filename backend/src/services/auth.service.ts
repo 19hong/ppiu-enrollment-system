@@ -63,10 +63,14 @@ export const authService = {
       { expiresIn: '24h' },
     );
 
-    await sendVerificationEmail(
-      { email: user.email, firstName: user.firstName },
-      verificationToken,
-    );
+    try {
+      await sendVerificationEmail(
+        { email: user.email, firstName: user.firstName },
+        verificationToken,
+      );
+    } catch {
+      // Email sending failed — registration still succeeds
+    }
 
     return excludePassword(user);
   },
@@ -151,10 +155,14 @@ export const authService = {
       { expiresIn: '1h' },
     );
 
-    await sendPasswordResetEmail(
-      { email: user.email, firstName: user.firstName },
-      resetToken,
-    );
+    try {
+      await sendPasswordResetEmail(
+        { email: user.email, firstName: user.firstName },
+        resetToken,
+      );
+    } catch {
+      // Email sending failed — password reset still proceeds
+    }
 
     return { message: 'If an account with that email exists, a password reset link has been sent.' };
   },
