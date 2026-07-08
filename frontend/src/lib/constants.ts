@@ -1,0 +1,71 @@
+export const ROLES = {
+  SUPER_ADMIN: 'SUPER_ADMIN',
+  REGISTRAR: 'REGISTRAR',
+  FINANCE_OFFICER: 'FINANCE_OFFICER',
+  DEPARTMENT_HEAD: 'DEPARTMENT_HEAD',
+  LECTURER: 'LECTURER',
+  STUDENT: 'STUDENT',
+  PARENT: 'PARENT',
+} as const;
+
+export const STUDENT_STATUS = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  SUSPENDED: 'SUSPENDED',
+  GRADUATED: 'GRADUATED',
+} as const;
+
+export const APPLICATION_STATUS = {
+  PENDING: 'PENDING',
+  REVIEWED: 'REVIEWED',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+  WAITLISTED: 'WAITLISTED',
+} as const;
+
+export const ENROLLMENT_STATUS = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  COMPLETED: 'COMPLETED',
+} as const;
+
+export const PAYMENT_STATUS = {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+  PARTIALLY: 'PARTIALLY',
+  REFUNDED: 'REFUNDED',
+  CANCELLED: 'CANCELLED',
+} as const;
+
+export const PAYMENT_TYPES = {
+  TUITION: 'TUITION',
+  REGISTRATION: 'REGISTRATION',
+  OTHER: 'OTHER',
+} as const;
+
+export const PROGRAM_LEVELS = {
+  BACHELOR: 'BACHELOR',
+  MASTER: 'MASTER',
+  ASSOCIATE: 'ASSOCIATE',
+  DOCTORATE: 'DOCTORATE',
+} as const;
+
+export const WEEKDAYS = {
+  MON: 'Monday',
+  TUE: 'Tuesday',
+  WED: 'Wednesday',
+  THU: 'Thursday',
+  FRI: 'Friday',
+  SAT: 'Saturday',
+  SUN: 'Sunday',
+} as const;
+
+export const ATTENDANCE_STATUS = {
+  PRESENT: 'PRESENT',
+  ABSENT: 'ABSENT',
+  LATE: 'LATE',
+  EXCUSED: 'EXCUSED',
+} as const;
+
+export const GRADE_LETTERS = ['A', 'B', 'C', 'D', 'F'] as const;
