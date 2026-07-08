@@ -137,7 +137,7 @@ export const applicationService = {
         userId: data.userId,
         programId: data.programId,
         semesterId: data.semesterId,
-        documents: data.documents || [],
+        documents: (data.documents || []) as any,
       },
       include: {
         user: {

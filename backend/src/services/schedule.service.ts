@@ -164,7 +164,7 @@ export const scheduleService = {
       where: {
         classroomId: data.classroomId,
         semesterId: data.semesterId,
-        weekday: data.weekday,
+        weekday: data.weekday as any,
         status: { not: 'CANCELLED' },
         AND: [
           { startTime: { lt: endDate } },
@@ -182,7 +182,7 @@ export const scheduleService = {
         where: {
           lecturerId: data.lecturerId,
           semesterId: data.semesterId,
-          weekday: data.weekday,
+          weekday: data.weekday as any,
           status: { not: 'CANCELLED' },
           AND: [
             { startTime: { lt: endDate } },
@@ -202,7 +202,7 @@ export const scheduleService = {
         classroomId: data.classroomId,
         lecturerId: data.lecturerId ?? null,
         semesterId: data.semesterId,
-        weekday: data.weekday,
+        weekday: data.weekday as any,
         startTime: startDate,
         endTime: endDate,
         capacity: data.capacity ?? null,
@@ -272,8 +272,8 @@ export const scheduleService = {
         where: {
           id: { not: id },
           classroomId,
-          semesterId,
-          weekday,
+          semesterId: semesterId as any,
+          weekday: weekday as any,
           status: { not: 'CANCELLED' },
           AND: [
             { startTime: { lt: endTime } },
@@ -292,8 +292,8 @@ export const scheduleService = {
         where: {
           id: { not: id },
           lecturerId,
-          semesterId,
-          weekday,
+          semesterId: semesterId as any,
+          weekday: weekday as any,
           status: { not: 'CANCELLED' },
           AND: [
             { startTime: { lt: endTime } },
@@ -314,12 +314,12 @@ export const scheduleService = {
         ...(data.classroomId !== undefined && { classroomId: data.classroomId }),
         ...(data.lecturerId !== undefined && { lecturerId: data.lecturerId }),
         ...(data.semesterId !== undefined && { semesterId: data.semesterId }),
-        ...(data.weekday !== undefined && { weekday: data.weekday }),
+        ...(data.weekday !== undefined && { weekday: data.weekday as any }),
         ...(data.startTime !== undefined && { startTime: new Date(data.startTime) }),
         ...(data.endTime !== undefined && { endTime: new Date(data.endTime) }),
         ...(data.capacity !== undefined && { capacity: data.capacity }),
-        ...(data.status !== undefined && { status: data.status }),
-      },
+        ...(data.status !== undefined && { status: data.status as any }),
+      } as any,
       include: {
         course: {
           select: {

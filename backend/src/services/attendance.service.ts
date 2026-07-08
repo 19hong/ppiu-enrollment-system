@@ -154,7 +154,7 @@ export const attendanceService = {
         scheduleId: data.scheduleId,
         courseId: data.courseId,
         date: attendanceDate,
-        status: data.status,
+        status: data.status as any,
         remarks: data.remarks ?? null,
       },
       include: {
@@ -222,7 +222,7 @@ export const attendanceService = {
           const updated = await tx.attendance.update({
             where: { id: existing.id },
             data: {
-              status: record.status,
+              status: record.status as any,
               remarks: record.remarks ?? null,
             },
             include: {
@@ -248,7 +248,7 @@ export const attendanceService = {
               scheduleId: data.scheduleId,
               courseId: data.courseId,
               date: attendanceDate,
-              status: record.status,
+              status: record.status as any,
               remarks: record.remarks ?? null,
             },
             include: {
@@ -291,7 +291,7 @@ export const attendanceService = {
     const updated = await prisma.attendance.update({
       where: { id },
       data: {
-        ...(data.status !== undefined && { status: data.status }),
+        ...(data.status !== undefined && { status: data.status as any }),
         ...(data.remarks !== undefined && { remarks: data.remarks }),
       },
       include: {

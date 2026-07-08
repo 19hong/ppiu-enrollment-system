@@ -251,7 +251,7 @@ export const studentService = {
         ...(data.nationality !== undefined && { nationality: data.nationality }),
         ...(data.emergencyContact !== undefined && { emergencyContactName: data.emergencyContact }),
         ...(data.emergencyPhone !== undefined && { emergencyContactPhone: data.emergencyPhone }),
-        ...(data.status !== undefined && { status: data.status }),
+        ...(data.status !== undefined && { status: data.status as any }),
       },
       include: {
         user: {
@@ -283,7 +283,7 @@ export const studentService = {
     await prisma.$transaction([
       prisma.student.update({
         where: { id },
-        data: { status: StudentStatus.INACTIVE },
+        data: { status: StudentStatus.INACTIVE as any },
       }),
       prisma.user.update({
         where: { id: student.userId },
@@ -302,7 +302,7 @@ export const studentService = {
 
     const updatedStudent = await prisma.student.update({
       where: { id },
-      data: { status },
+      data: { status: status as any },
       include: {
         user: {
           select: {
