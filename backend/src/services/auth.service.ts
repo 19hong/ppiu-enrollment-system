@@ -10,7 +10,7 @@ const generateAccessToken = (user: { id: string; email: string; roles: string[] 
   return jwt.sign(
     { userId: user.id, email: user.email, roles: user.roles },
     config.jwt.secret,
-    { expiresIn: config.jwt.expiresIn },
+    { expiresIn: config.jwt.expiresIn } as any,
   );
 };
 
@@ -18,7 +18,7 @@ const generateRefreshToken = (user: { id: string; email: string; roles: string[]
   return jwt.sign(
     { userId: user.id, email: user.email, roles: user.roles },
     config.jwt.refreshSecret,
-    { expiresIn: config.jwt.refreshExpiresIn },
+    { expiresIn: config.jwt.refreshExpiresIn } as any,
   );
 };
 

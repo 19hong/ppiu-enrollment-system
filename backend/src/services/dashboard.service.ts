@@ -73,7 +73,7 @@ export const dashboardService = {
       prisma.enrollment.findMany({
         where: { studentId: student.id },
         include: {
-          semester: true,
+          /* semester: true,*/
           _count: { select: { enrollmentCourses: true } },
         },
         orderBy: { createdAt: 'desc' },
@@ -86,7 +86,7 @@ export const dashboardService = {
         where: { studentId: student.id },
         include: {
           course: true,
-          semester: true,
+          /* semester: true,*/
         },
         orderBy: { createdAt: 'desc' },
       }),
@@ -130,7 +130,7 @@ export const dashboardService = {
         include: {
           _count: { select: { enrollmentCourses: true } },
           department: true,
-          semester: true,
+          /* semester: true,*/
         },
       }),
       prisma.schedule.findMany({
@@ -138,7 +138,7 @@ export const dashboardService = {
         include: {
           course: true,
           classroom: true,
-          semester: true,
+          /* semester: true,*/
         },
         orderBy: { startTime: 'asc' },
       }),

@@ -511,7 +511,7 @@ export const scheduleService = {
       where: {
         classroomId,
         semesterId,
-        weekday,
+        weekday: weekday as any,
         status: { not: 'CANCELLED' },
         AND: [
           { startTime: { lt: endDate } },

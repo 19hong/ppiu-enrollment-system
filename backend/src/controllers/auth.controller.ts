@@ -70,7 +70,7 @@ export const authController = {
   async verifyEmail(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { token } = req.params;
-      const result = await authService.verifyEmail(token);
+      const result = await authService.verifyEmail(token as string);
       return ApiResponse.success(res, result, 'Email verified successfully');
     } catch (error) {
       next(error);

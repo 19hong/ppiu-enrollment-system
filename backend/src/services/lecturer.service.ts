@@ -104,14 +104,14 @@ export const lecturerService = {
           include: {
             department: true,
             program: true,
-            semester: true,
+            /* semester: true,*/
           },
         },
         scheduledCourses: {
           include: {
             course: true,
             classroom: true,
-            semester: true,
+            /* semester: true,*/
           },
         },
         userRoles: {
@@ -282,7 +282,7 @@ export const lecturerService = {
       include: {
         department: true,
         program: true,
-        semester: true,
+        /* semester: true,*/
         _count: {
           select: {
             enrollmentCourses: true,
@@ -315,7 +315,7 @@ export const lecturerService = {
       include: {
         course: true,
         classroom: true,
-        semester: true,
+        /* semester: true,*/
       },
       orderBy: { startTime: 'asc' },
     });

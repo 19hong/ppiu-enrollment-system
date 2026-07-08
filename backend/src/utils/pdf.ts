@@ -224,7 +224,8 @@ export async function generateStudentIdCard(
 
     doc
       .rect(0, 0, 337, 212)
-      .stroke('#1a237e', 3);
+      .lineWidth(3)
+      .stroke('#1a237e');
 
     doc
       .fontSize(14)
