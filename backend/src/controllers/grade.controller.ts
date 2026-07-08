@@ -67,7 +67,7 @@ export const gradeController = {
   async getStudentGrades(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const studentId = req.params.studentId as string;
-      const grades = await gradeService.getStudentGrades(studentId);
+      const grades = await gradeService.getStudentGrades(studentId, req.user!.userId);
       return ApiResponse.success(res, grades, 'Student grades retrieved successfully');
     } catch (error) {
       next(error);
@@ -77,7 +77,7 @@ export const gradeController = {
   async generateTranscript(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const studentId = req.params.studentId as string;
-      const transcript = await gradeService.generateTranscript(studentId);
+      const transcript = await gradeService.generateTranscript(studentId, req.user!.userId);
       return ApiResponse.success(res, transcript, 'Transcript generated successfully');
     } catch (error) {
       next(error);
@@ -87,7 +87,7 @@ export const gradeController = {
   async getCourseGrades(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const courseId = req.params.courseId as string;
-      const grades = await gradeService.getCourseGrades(courseId);
+      const grades = await gradeService.getCourseGrades(courseId, req.user!.userId);
       return ApiResponse.success(res, grades, 'Course grades retrieved successfully');
     } catch (error) {
       next(error);

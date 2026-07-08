@@ -1,5 +1,5 @@
 import prisma from '../config/database';
-import { BadRequestError, NotFoundError } from '../utils/errors';
+import { BadRequestError, ForbiddenError, NotFoundError } from '../utils/errors';
 import { calculateGradeTotal, getGradeLetter, getGradePoints, paginate } from '../utils/helpers';
 
 export const gradeService = {
@@ -340,10 +340,15 @@ export const gradeService = {
     return grades;
   },
 
-  async getStudentGrades(studentId: string) {
+  async getStudentGrades(studentId: string, userId: string) {
     const student = await prisma.student.findUnique({ where: { id: studentId } });
     if (!student) {
       throw new NotFoundError('Student not found');
+    }
+
+    const requestingStudent = await prisma.student.findUnique({ where: { userId } });
+    if (requestingStudent && requestingStudent.id !== studentId) {
+      throw new ForbiddenError('You do not have access to these grades');
     }
 
     const grades = await prisma.grade.findMany({
@@ -371,7 +376,7 @@ export const gradeService = {
     return grades;
   },
 
-  async generateTranscript(studentId: string) {
+  async generateTranscript(studentId: string, userId: string) {
     const student = await prisma.student.findUnique({
       where: { id: studentId },
       include: {
@@ -388,6 +393,11 @@ export const gradeService = {
 
     if (!student) {
       throw new NotFoundError('Student not found');
+    }
+
+    const requestingStudent = await prisma.student.findUnique({ where: { userId } });
+    if (requestingStudent && requestingStudent.id !== studentId) {
+      throw new ForbiddenError('You do not have access to this transcript');
     }
 
     const grades = await prisma.grade.findMany({
@@ -470,10 +480,31 @@ export const gradeService = {
     };
   },
 
-  async getCourseGrades(courseId: string) {
+  async getCourseGrades(courseId: string, userId: string) {
     const course = await prisma.course.findUnique({ where: { id: courseId } });
     if (!course) {
       throw new NotFoundError('Course not found');
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { userRoles: { select: { role: { select: { name: true } } } } },
+    });
+    const roles = user?.userRoles.map(ur => ur.role.name) || [];
+    const hasElevatedAccess = roles.some(r => ['SUPER_ADMIN', 'REGISTRAR'].includes(r));
+    if (!hasElevatedAccess) {
+      const teachesCourse = await prisma.course.findFirst({
+        where: {
+          id: courseId,
+          OR: [
+            { lecturerId: userId },
+            { schedules: { some: { lecturerId: userId } } },
+          ],
+        },
+      });
+      if (!teachesCourse) {
+        throw new ForbiddenError('You do not have access to grades for this course');
+      }
     }
 
     const grades = await prisma.grade.findMany({

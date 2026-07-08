@@ -1,6 +1,6 @@
 import { Prisma, EnrollmentStatus, SemesterStatus, PaymentType, PaymentStatus, EnrollmentCourseStatus } from '@prisma/client';
 import prisma from '../config/database';
-import { BadRequestError, ConflictError, NotFoundError } from '../utils/errors';
+import { BadRequestError, ConflictError, ForbiddenError, NotFoundError } from '../utils/errors';
 import { generateEnrollmentNumber, paginate } from '../utils/helpers';
 
 export const enrollmentService = {
@@ -450,7 +450,7 @@ export const enrollmentService = {
     return enrollments;
   },
 
-  async getSchedule(enrollmentId: string) {
+  async getSchedule(enrollmentId: string, userId: string) {
     const enrollment = await prisma.enrollment.findUnique({
       where: { id: enrollmentId },
       include: {
@@ -489,6 +489,11 @@ export const enrollmentService = {
 
     if (!enrollment) {
       throw new NotFoundError('Enrollment not found');
+    }
+
+    const requestingStudent = await prisma.student.findUnique({ where: { userId } });
+    if (requestingStudent && requestingStudent.id !== enrollment.studentId) {
+      throw new ForbiddenError('You do not have access to this schedule');
     }
 
     const schedule = enrollment.enrollmentCourses.flatMap((ec) =>

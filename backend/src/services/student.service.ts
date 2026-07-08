@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import prisma from '../config/database';
 import { config } from '../config';
-import { BadRequestError, ConflictError, NotFoundError } from '../utils/errors';
+import { BadRequestError, ConflictError, ForbiddenError, NotFoundError } from '../utils/errors';
 import { generateStudentNumber, paginate } from '../utils/helpers';
 import { RoleName, StudentStatus } from '../types';
 
@@ -352,10 +352,15 @@ export const studentService = {
     return student;
   },
 
-  async uploadPhoto(studentId: string, fileUrl: string) {
+  async uploadPhoto(studentId: string, userId: string, fileUrl: string) {
     const student = await prisma.student.findUnique({ where: { id: studentId } });
     if (!student) {
       throw new NotFoundError('Student not found');
+    }
+
+    const requestingStudent = await prisma.student.findUnique({ where: { userId } });
+    if (requestingStudent && requestingStudent.id !== studentId) {
+      throw new ForbiddenError('You do not have permission to update this student\'s photo');
     }
 
     const user = await prisma.user.update({

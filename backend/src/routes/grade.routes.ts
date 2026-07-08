@@ -7,27 +7,23 @@ import { validate } from '../middlewares/validate';
 const router = Router();
 
 const enterGradeSchema = z.object({
-  body: z.object({
-    enrollmentCourseId: z.string().uuid('Invalid enrollment course ID'),
-    studentId: z.string().uuid('Invalid student ID'),
-    courseId: z.string().uuid('Invalid course ID'),
-    semesterId: z.string().uuid('Invalid semester ID'),
-    midterm: z.number().min(0).max(100).optional(),
-    final: z.number().min(0).max(100).optional(),
-    assignment: z.number().min(0).max(100).optional(),
-    attendance: z.number().min(0).max(100).optional(),
-    remarks: z.string().optional(),
-  }),
+  enrollmentCourseId: z.string().uuid('Invalid enrollment course ID'),
+  studentId: z.string().uuid('Invalid student ID'),
+  courseId: z.string().uuid('Invalid course ID'),
+  semesterId: z.string().uuid('Invalid semester ID'),
+  midterm: z.number().min(0).max(100).optional(),
+  final: z.number().min(0).max(100).optional(),
+  assignment: z.number().min(0).max(100).optional(),
+  attendance: z.number().min(0).max(100).optional(),
+  remarks: z.string().optional(),
 });
 
 const updateGradeSchema = z.object({
-  body: z.object({
-    midterm: z.number().min(0).max(100).optional(),
-    final: z.number().min(0).max(100).optional(),
-    assignment: z.number().min(0).max(100).optional(),
-    attendance: z.number().min(0).max(100).optional(),
-    remarks: z.string().optional(),
-  }),
+  midterm: z.number().min(0).max(100).optional(),
+  final: z.number().min(0).max(100).optional(),
+  assignment: z.number().min(0).max(100).optional(),
+  attendance: z.number().min(0).max(100).optional(),
+  remarks: z.string().optional(),
 });
 
 router.get('/', authenticate, authorize('SUPER_ADMIN', 'REGISTRAR', 'LECTURER'), gradeController.getAll);
@@ -40,7 +36,7 @@ router.get('/students/:studentId', authenticate, authorize('SUPER_ADMIN', 'REGIS
 
 router.get('/students/:studentId/transcript', authenticate, authorize('SUPER_ADMIN', 'REGISTRAR', 'STUDENT'), gradeController.generateTranscript);
 
-router.get('/:id', authenticate, gradeController.getById);
+router.get('/:id', authenticate, authorize('SUPER_ADMIN', 'REGISTRAR', 'LECTURER', 'STUDENT'), gradeController.getById);
 
 router.post('/', authenticate, authorize('SUPER_ADMIN', 'REGISTRAR', 'LECTURER'), validate(enterGradeSchema), gradeController.enterGrade);
 

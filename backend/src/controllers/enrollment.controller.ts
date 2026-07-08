@@ -72,7 +72,7 @@ export const enrollmentController = {
   async getSchedule(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const enrollmentId = req.params.enrollmentId as string;
-      const schedule = await enrollmentService.getSchedule(enrollmentId);
+      const schedule = await enrollmentService.getSchedule(enrollmentId, req.user!.userId);
       return ApiResponse.success(res, schedule, 'Schedule retrieved successfully');
     } catch (error) {
       next(error);

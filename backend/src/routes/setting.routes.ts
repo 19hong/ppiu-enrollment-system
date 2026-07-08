@@ -8,30 +8,22 @@ import { upload } from '../middlewares/upload';
 const router = Router();
 
 const updateSettingSchema = z.object({
-  body: z.object({
-    value: z.string().min(1, 'Value is required'),
-  }),
+  value: z.string().min(1, 'Value is required'),
 });
 
 const updateBulkSettingsSchema = z.object({
-  body: z.object({
-    settings: z.array(z.object({
-      key: z.string().min(1),
-      value: z.string().min(1),
-    })).min(1),
-  }),
+  settings: z.array(z.object({
+    key: z.string().min(1),
+    value: z.string().min(1),
+  })).min(1),
 });
 
 const setAcademicYearSchema = z.object({
-  body: z.object({
-    academicYearId: z.string().uuid('Invalid academic year ID'),
-  }),
+  academicYearId: z.string().uuid('Invalid academic year ID'),
 });
 
 const setSemesterSchema = z.object({
-  body: z.object({
-    semesterId: z.string().uuid('Invalid semester ID'),
-  }),
+  semesterId: z.string().uuid('Invalid semester ID'),
 });
 
 router.get('/', authenticate, authorize('SUPER_ADMIN', 'ADMIN'), settingController.getAll);

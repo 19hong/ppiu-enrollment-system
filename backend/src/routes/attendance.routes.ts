@@ -7,36 +7,30 @@ import { validate } from '../middlewares/validate';
 const router = Router();
 
 const markAttendanceSchema = z.object({
-  body: z.object({
-    studentId: z.string().uuid('Invalid student ID'),
-    scheduleId: z.string().uuid('Invalid schedule ID'),
-    courseId: z.string().uuid('Invalid course ID'),
-    date: z.string().refine((val) => !isNaN(Date.parse(val)), 'Invalid date format'),
-    status: z.enum(['PRESENT', 'ABSENT', 'LATE', 'EXCUSED']),
-    remarks: z.string().optional(),
-  }),
+  studentId: z.string().uuid('Invalid student ID'),
+  scheduleId: z.string().uuid('Invalid schedule ID'),
+  courseId: z.string().uuid('Invalid course ID'),
+  date: z.string().refine((val) => !isNaN(Date.parse(val)), 'Invalid date format'),
+  status: z.enum(['PRESENT', 'ABSENT', 'LATE', 'EXCUSED']),
+  remarks: z.string().optional(),
 });
 
 const bulkAttendanceSchema = z.object({
-  body: z.object({
-    scheduleId: z.string().uuid('Invalid schedule ID'),
-    courseId: z.string().uuid('Invalid course ID'),
-    date: z.string().refine((val) => !isNaN(Date.parse(val)), 'Invalid date format'),
-    records: z.array(
-      z.object({
-        studentId: z.string().uuid('Invalid student ID'),
-        status: z.enum(['PRESENT', 'ABSENT', 'LATE', 'EXCUSED']),
-        remarks: z.string().optional(),
-      }),
-    ).min(1, 'At least one record is required'),
-  }),
+  scheduleId: z.string().uuid('Invalid schedule ID'),
+  courseId: z.string().uuid('Invalid course ID'),
+  date: z.string().refine((val) => !isNaN(Date.parse(val)), 'Invalid date format'),
+  records: z.array(
+    z.object({
+      studentId: z.string().uuid('Invalid student ID'),
+      status: z.enum(['PRESENT', 'ABSENT', 'LATE', 'EXCUSED']),
+      remarks: z.string().optional(),
+    }),
+  ).min(1, 'At least one record is required'),
 });
 
 const updateAttendanceSchema = z.object({
-  body: z.object({
-    status: z.enum(['PRESENT', 'ABSENT', 'LATE', 'EXCUSED']).optional(),
-    remarks: z.string().optional(),
-  }),
+  status: z.enum(['PRESENT', 'ABSENT', 'LATE', 'EXCUSED']).optional(),
+  remarks: z.string().optional(),
 });
 
 router.get('/', authenticate, authorize('SUPER_ADMIN', 'REGISTRAR', 'LECTURER'), attendanceController.getAll);

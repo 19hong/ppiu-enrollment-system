@@ -65,7 +65,7 @@ export const paymentController = {
   async getInvoice(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const paymentId = req.params.id as string;
-      const pdfBuffer = await paymentService.getInvoice(paymentId);
+      const pdfBuffer = await paymentService.getInvoice(paymentId, req.user!.userId);
 
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename=invoice-${paymentId}.pdf`);
@@ -78,7 +78,7 @@ export const paymentController = {
   async getReceipt(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const paymentId = req.params.id as string;
-      const pdfBuffer = await paymentService.getReceipt(paymentId);
+      const pdfBuffer = await paymentService.getReceipt(paymentId, req.user!.userId);
 
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename=receipt-${paymentId}.pdf`);

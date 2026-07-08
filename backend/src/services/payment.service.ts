@@ -1,6 +1,6 @@
 import { Prisma, PaymentStatus, PaymentMethod } from '@prisma/client';
 import prisma from '../config/database';
-import { BadRequestError, NotFoundError } from '../utils/errors';
+import { BadRequestError, ForbiddenError, NotFoundError } from '../utils/errors';
 import { generateInvoiceNumber, paginate } from '../utils/helpers';
 import { generateInvoice, generateRegistrationReceipt } from '../utils/pdf';
 
@@ -306,7 +306,7 @@ export const paymentService = {
     return payments;
   },
 
-  async getInvoice(paymentId: string) {
+  async getInvoice(paymentId: string, userId: string) {
     const payment = await prisma.payment.findUnique({
       where: { id: paymentId },
       include: {
@@ -321,6 +321,11 @@ export const paymentService = {
 
     if (!payment) {
       throw new NotFoundError('Payment not found');
+    }
+
+    const student = await prisma.student.findUnique({ where: { userId } });
+    if (student && student.id !== payment.studentId) {
+      throw new ForbiddenError('You do not have access to this invoice');
     }
 
     const invoiceData = {
@@ -344,7 +349,7 @@ export const paymentService = {
     return pdfBuffer;
   },
 
-  async getReceipt(paymentId: string) {
+  async getReceipt(paymentId: string, userId: string) {
     const payment = await prisma.payment.findUnique({
       where: { id: paymentId },
       include: {
@@ -377,6 +382,11 @@ export const paymentService = {
 
     if (!payment) {
       throw new NotFoundError('Payment not found');
+    }
+
+    const student = await prisma.student.findUnique({ where: { userId } });
+    if (student && student.id !== payment.studentId) {
+      throw new ForbiddenError('You do not have access to this receipt');
     }
 
     if (payment.status !== PaymentStatus.PAID && payment.status !== PaymentStatus.PARTIALLY) {

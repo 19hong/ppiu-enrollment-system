@@ -78,7 +78,7 @@ export const studentController = {
         return ApiResponse.badRequest(res, 'No file uploaded');
       }
       const fileUrl = `/uploads/${req.file.filename}`;
-      const result = await studentService.uploadPhoto(id, fileUrl);
+      const result = await studentService.uploadPhoto(id, req.user!.userId, fileUrl);
       return ApiResponse.success(res, result, 'Photo uploaded successfully');
     } catch (error) {
       next(error);

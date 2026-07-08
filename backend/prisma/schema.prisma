@@ -181,21 +181,21 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  userRoles               UserRole[]
-  students                Student[]
-  parentRecords           Parent[]
-  departmentsHead         Department[]       @relation("DepartmentHead")
-  coursesTaught           Course[]           @relation("CourseLecturer")
-  scheduledCourses        Schedule[]         @relation("ScheduleLecturer")
-  applications            Application[]      @relation("ApplicationUser")
-  reviewedApplications    Application[]      @relation("ApplicationReviewer")
-  enrollmentsApproved     Enrollment[]       @relation("EnrollmentApprover")
-  gradesGiven             Grade[]            @relation("GradeGrader")
-  announcements           Announcement[]
-  notifications           Notification[]
-  documents               Document[]
-  auditLogs               AuditLog[]
-  paymentsReceived        PaymentHistory[]   @relation("PaymentReceiver")
+  userRoles            UserRole[]
+  students             Student[]
+  parentRecords        Parent[]
+  departmentsHead      Department[]     @relation("DepartmentHead")
+  coursesTaught        Course[]         @relation("CourseLecturer")
+  scheduledCourses     Schedule[]       @relation("ScheduleLecturer")
+  applications         Application[]    @relation("ApplicationUser")
+  reviewedApplications Application[]    @relation("ApplicationReviewer")
+  enrollmentsApproved  Enrollment[]     @relation("EnrollmentApprover")
+  gradesGiven          Grade[]          @relation("GradeGrader")
+  announcements        Announcement[]
+  notifications        Notification[]
+  documents            Document[]
+  auditLogs            AuditLog[]
+  paymentsReceived     PaymentHistory[] @relation("PaymentReceiver")
 
   @@map("users")
 }
@@ -220,9 +220,12 @@ model Permission {
   resource    String
   action      String
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   rolePermissions RolePermission[]
 
+  @@unique([resource, action])
+  @@index([resource, action])
   @@map("permissions")
 }
 
@@ -268,7 +271,7 @@ model Student {
   createdAt                DateTime      @default(now())
   updatedAt                DateTime      @updatedAt
 
-  user              User                @relation(fields: [userId], references: [id])
+  user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   parents           Parent[]
   applications      Application[]
   enrollments       Enrollment[]
@@ -293,8 +296,8 @@ model Parent {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  user    User    @relation(fields: [userId], references: [id])
-  student Student @relation(fields: [studentId], references: [id])
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([studentId])
@@ -311,7 +314,7 @@ model Department {
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
-  head     User?     @relation("DepartmentHead", fields: [headId], references: [id])
+  head     User?     @relation("DepartmentHead", fields: [headId], references: [id], onDelete: SetNull)
   programs Program[]
   courses  Course[]
 
@@ -333,7 +336,7 @@ model Program {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
-  department   Department      @relation(fields: [departmentId], references: [id])
+  department   Department    @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   courses      Course[]
   applications Application[]
 
@@ -358,15 +361,15 @@ model Course {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
-  department          Department           @relation(fields: [departmentId], references: [id])
-  program             Program?             @relation(fields: [programId], references: [id])
-  lecturer            User?                @relation("CourseLecturer", fields: [lecturerId], references: [id])
-  prerequisites       CoursePrerequisite[] @relation("CoursePrerequisite")
-  prerequisitesFor    CoursePrerequisite[] @relation("PrerequisiteCourse")
-  schedules           Schedule[]
-  enrollmentCourses   EnrollmentCourse[]
-  grades              Grade[]
-  attendanceRecords   Attendance[]
+  department        Department           @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  program           Program?             @relation(fields: [programId], references: [id], onDelete: SetNull)
+  lecturer          User?                @relation("CourseLecturer", fields: [lecturerId], references: [id], onDelete: SetNull)
+  prerequisites     CoursePrerequisite[] @relation("CoursePrerequisite")
+  prerequisitesFor  CoursePrerequisite[] @relation("PrerequisiteCourse")
+  schedules         Schedule[]
+  enrollmentCourses EnrollmentCourse[]
+  grades            Grade[]
+  attendanceRecords Attendance[]
 
   @@index([status])
   @@index([departmentId])
@@ -383,6 +386,7 @@ model CoursePrerequisite {
   course             Course @relation("CoursePrerequisite", fields: [courseId], references: [id], onDelete: Cascade)
   prerequisiteCourse Course @relation("PrerequisiteCourse", fields: [prerequisiteCourseId], references: [id], onDelete: Cascade)
 
+  @@unique([courseId, prerequisiteCourseId])
   @@index([courseId])
   @@index([prerequisiteCourseId])
   @@map("course_prerequisites")
@@ -463,13 +467,15 @@ model Schedule {
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 
-  course      Course       @relation(fields: [courseId], references: [id])
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
   classroom   Classroom    @relation(fields: [classroomId], references: [id])
-  lecturer    User?        @relation("ScheduleLecturer", fields: [lecturerId], references: [id])
-  semester    Semester     @relation(fields: [semesterId], references: [id])
+  lecturer    User?        @relation("ScheduleLecturer", fields: [lecturerId], references: [id], onDelete: SetNull)
+  semester    Semester     @relation(fields: [semesterId], references: [id], onDelete: Cascade)
   attendances Attendance[]
 
   @@index([courseId])
+  @@index([classroomId, weekday, startTime])
+  @@index([lecturerId, weekday, startTime])
   @@index([classroomId])
   @@index([lecturerId])
   @@index([semesterId])
@@ -479,25 +485,25 @@ model Schedule {
 }
 
 model Application {
-  id              String            @id @default(cuid())
-  userId          String
-  studentId       String?
-  programId       String
-  semesterId      String
-  status          ApplicationStatus @default(PENDING)
-  applicationDate DateTime          @default(now())
-  reviewedBy      String?
-  reviewDate      DateTime?
-  reviewNotes     String?
+  id                   String            @id @default(cuid())
+  userId               String
+  studentId            String?
+  programId            String
+  semesterId           String
+  status               ApplicationStatus @default(PENDING)
+  applicationDate      DateTime          @default(now())
+  reviewedBy           String?
+  reviewDate           DateTime?
+  reviewNotes          String?
   applicationDocuments Json?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
 
-  user     User      @relation("ApplicationUser", fields: [userId], references: [id])
-  student  Student?  @relation(fields: [studentId], references: [id])
-  program  Program   @relation(fields: [programId], references: [id])
-  semester Semester  @relation(fields: [semesterId], references: [id])
-  reviewer  User?      @relation("ApplicationReviewer", fields: [reviewedBy], references: [id])
+  user      User       @relation("ApplicationUser", fields: [userId], references: [id], onDelete: Cascade)
+  student   Student?   @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  program   Program    @relation(fields: [programId], references: [id])
+  semester  Semester   @relation(fields: [semesterId], references: [id])
+  reviewer  User?      @relation("ApplicationReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
   documents Document[]
 
   @@index([status])
@@ -523,9 +529,9 @@ model Enrollment {
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
-  student           Student            @relation(fields: [studentId], references: [id])
-  semester          Semester           @relation(fields: [semesterId], references: [id])
-  approver          User?              @relation("EnrollmentApprover", fields: [approvedBy], references: [id])
+  student           Student            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  semester          Semester           @relation(fields: [semesterId], references: [id], onDelete: Restrict)
+  approver          User?              @relation("EnrollmentApprover", fields: [approvedBy], references: [id], onDelete: SetNull)
   enrollmentCourses EnrollmentCourse[]
   payments          Payment[]
 
@@ -543,10 +549,11 @@ model EnrollmentCourse {
   status       EnrollmentCourseStatus @default(ENROLLED)
   grade        Float?
 
-  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-  course     Course     @relation(fields: [courseId], references: [id])
+  enrollment  Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  course      Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
   gradeRecord Grade?
 
+  @@unique([enrollmentId, courseId])
   @@index([enrollmentId])
   @@index([courseId])
   @@index([status])
@@ -569,10 +576,11 @@ model Payment {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
-  student   Student         @relation(fields: [studentId], references: [id])
-  enrollment Enrollment?    @relation(fields: [enrollmentId], references: [id])
-  history   PaymentHistory[]
+  student    Student          @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  enrollment Enrollment?      @relation(fields: [enrollmentId], references: [id], onDelete: SetNull)
+  history    PaymentHistory[]
 
+  @@index([studentId, status])
   @@index([status])
   @@index([studentId])
   @@index([enrollmentId])
@@ -590,9 +598,10 @@ model PaymentHistory {
   notes         String?
   paidBy        String?
   createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
-  payer   User?   @relation("PaymentReceiver", fields: [paidBy], references: [id])
+  payer   User?   @relation("PaymentReceiver", fields: [paidBy], references: [id], onDelete: SetNull)
 
   @@index([paymentId])
   @@index([paymentMethod])
@@ -618,12 +627,13 @@ model Grade {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
-  enrollmentCourse EnrollmentCourse @relation(fields: [enrollmentCourseId], references: [id])
+  enrollmentCourse EnrollmentCourse @relation(fields: [enrollmentCourseId], references: [id], onDelete: Cascade)
   student          Student          @relation(fields: [studentId], references: [id])
   course           Course           @relation(fields: [courseId], references: [id])
   semester         Semester         @relation(fields: [semesterId], references: [id])
-  grader           User?            @relation("GradeGrader", fields: [gradedBy], references: [id])
+  grader           User?            @relation("GradeGrader", fields: [gradedBy], references: [id], onDelete: SetNull)
 
+  @@index([studentId, courseId, semesterId])
   @@index([studentId])
   @@index([courseId])
   @@index([semesterId])
@@ -642,11 +652,12 @@ model Attendance {
   createdAt  DateTime         @default(now())
   updatedAt  DateTime         @updatedAt
 
-  student  Student  @relation(fields: [studentId], references: [id])
-  schedule Schedule @relation(fields: [scheduleId], references: [id])
+  student  Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  schedule Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
   course   Course   @relation(fields: [courseId], references: [id])
 
   @@unique([studentId, scheduleId, date])
+  @@index([studentId, date])
   @@index([studentId])
   @@index([scheduleId])
   @@index([courseId])
@@ -669,7 +680,7 @@ model Announcement {
   createdAt   DateTime             @default(now())
   updatedAt   DateTime             @updatedAt
 
-  author User @relation(fields: [authorId], references: [id])
+  author User @relation(fields: [authorId], references: [id], onDelete: Restrict)
 
   @@index([status])
   @@index([type])
@@ -690,9 +701,11 @@ model Notification {
   isRead        Boolean          @default(false)
   readAt        DateTime?
   createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId, isRead])
   @@index([userId])
   @@index([isRead])
   @@index([type])
@@ -712,10 +725,11 @@ model Document {
   fileSize      Int?
   mimeType      String?
   createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  user        User?        @relation(fields: [userId], references: [id])
-  student     Student?     @relation(fields: [studentId], references: [id])
-  application Application? @relation(fields: [applicationId], references: [id])
+  user        User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  student     Student?     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  application Application? @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([studentId])
@@ -733,8 +747,9 @@ model AuditLog {
   ipAddress  String?
   userAgent  String?
   createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  user User? @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([action])
@@ -759,7 +774,7 @@ model Setting {
 }
 
 model Scholarship {
-  id                 String           @id @default(cuid())
+  id                 String            @id @default(cuid())
   name               String
   description        String?
   discountPercentage Float
@@ -768,8 +783,8 @@ model Scholarship {
   status             ScholarshipStatus @default(ACTIVE)
   startDate          DateTime?
   endDate            DateTime?
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
 
   studentScholarships StudentScholarship[]
 
@@ -788,9 +803,10 @@ model StudentScholarship {
   createdAt     DateTime                 @default(now())
   updatedAt     DateTime                 @updatedAt
 
-  student    Student    @relation(fields: [studentId], references: [id])
-  scholarship Scholarship @relation(fields: [scholarshipId], references: [id])
+  student     Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  scholarship Scholarship @relation(fields: [scholarshipId], references: [id], onDelete: Restrict)
 
+  @@unique([studentId, scholarshipId])
   @@index([studentId])
   @@index([scholarshipId])
   @@index([status])

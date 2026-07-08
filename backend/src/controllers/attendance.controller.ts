@@ -75,6 +75,7 @@ export const attendanceController = {
       const { courseId, semesterId } = req.query;
       const report = await attendanceService.getAttendanceReport(
         studentId,
+        req.user!.userId,
         courseId as string,
         semesterId as string,
       );
@@ -88,7 +89,7 @@ export const attendanceController = {
     try {
       const courseId = req.params.courseId as string;
       const { date } = req.query;
-      const records = await attendanceService.getCourseAttendance(courseId, date as string);
+      const records = await attendanceService.getCourseAttendance(courseId, req.user!.userId, date as string);
       return ApiResponse.success(res, records, 'Course attendance retrieved successfully');
     } catch (error) {
       next(error);

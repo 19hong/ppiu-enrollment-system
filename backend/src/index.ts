@@ -30,10 +30,23 @@ const app = express();
 
 // Security middleware
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+
+const allowedOrigins = [
+  config.frontendUrl,
+  ...(process.env.ADDITIONAL_ORIGINS ? process.env.ADDITIONAL_ORIGINS.split(',') : []),
+].filter(Boolean);
+
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    callback(null, true);
+    if (!origin) {
+      callback(new Error('Not allowed by CORS'));
+      return;
+    }
+    if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -41,14 +54,23 @@ app.use(cors({
 }));
 
 // Rate limiting
-const limiter = rateLimit({
+const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 200,
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: 'Too many requests, please try again later.' },
 });
-app.use('/api/auth', limiter);
+app.use('/api', globalLimiter);
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many requests, please try again later.' },
+});
+app.use('/api/auth', authLimiter);
 
 // Body parsing
 app.use(express.json({ limit: '10mb' }));

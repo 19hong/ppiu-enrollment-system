@@ -7,25 +7,21 @@ import { validate } from '../middlewares/validate';
 const router = Router();
 
 const createNotificationSchema = z.object({
-  body: z.object({
-    userId: z.string().uuid('Invalid user ID'),
-    title: z.string().min(1, 'Title is required'),
-    message: z.string().min(1, 'Message is required'),
-    type: z.enum(['INFO', 'WARNING', 'SUCCESS', 'ERROR']).optional(),
-    referenceType: z.string().optional(),
-    referenceId: z.string().optional(),
-  }),
+  userId: z.string().uuid('Invalid user ID'),
+  title: z.string().min(1, 'Title is required'),
+  message: z.string().min(1, 'Message is required'),
+  type: z.enum(['INFO', 'WARNING', 'SUCCESS', 'ERROR']).optional(),
+  referenceType: z.string().optional(),
+  referenceId: z.string().optional(),
 });
 
 const createBulkNotificationSchema = z.object({
-  body: z.object({
-    userIds: z.array(z.string().uuid()).min(1, 'At least one user ID is required'),
-    title: z.string().min(1, 'Title is required'),
-    message: z.string().min(1, 'Message is required'),
-    type: z.enum(['INFO', 'WARNING', 'SUCCESS', 'ERROR']).optional(),
-    referenceType: z.string().optional(),
-    referenceId: z.string().optional(),
-  }),
+  userIds: z.array(z.string().uuid()).min(1, 'At least one user ID is required'),
+  title: z.string().min(1, 'Title is required'),
+  message: z.string().min(1, 'Message is required'),
+  type: z.enum(['INFO', 'WARNING', 'SUCCESS', 'ERROR']).optional(),
+  referenceType: z.string().optional(),
+  referenceId: z.string().optional(),
 });
 
 router.get('/', authenticate, notificationController.getMyNotifications);
@@ -34,12 +30,12 @@ router.get('/unread-count', authenticate, notificationController.getUnreadCount)
 
 router.patch('/read-all', authenticate, notificationController.markAllAsRead);
 
-router.patch('/:id/read', authenticate, notificationController.markAsRead);
+router.patch('/:id/read', authenticate, authorize('SUPER_ADMIN', 'STUDENT', 'LECTURER'), notificationController.markAsRead);
 
 router.post('/', authenticate, authorize('SUPER_ADMIN', 'ADMIN'), validate(createNotificationSchema), notificationController.create);
 
 router.post('/bulk', authenticate, authorize('SUPER_ADMIN', 'ADMIN'), validate(createBulkNotificationSchema), notificationController.createBulk);
 
-router.delete('/:id', authenticate, notificationController.delete);
+router.delete('/:id', authenticate, authorize('SUPER_ADMIN', 'STUDENT', 'LECTURER'), notificationController.delete);
 
 export default router;

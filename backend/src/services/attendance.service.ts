@@ -1,5 +1,5 @@
 import prisma from '../config/database';
-import { ConflictError, NotFoundError } from '../utils/errors';
+import { ConflictError, ForbiddenError, NotFoundError } from '../utils/errors';
 import { paginate } from '../utils/helpers';
 
 export const attendanceService = {
@@ -361,9 +361,15 @@ export const attendanceService = {
 
   async getAttendanceReport(
     studentId: string,
+    userId: string,
     courseId?: string,
     semesterId?: string,
   ) {
+    const requestingStudent = await prisma.student.findUnique({ where: { userId } });
+    if (requestingStudent && requestingStudent.id !== studentId) {
+      throw new ForbiddenError('You do not have access to this attendance report');
+    }
+
     const where: any = { studentId };
     if (courseId) {
       where.courseId = courseId;
@@ -396,7 +402,28 @@ export const attendanceService = {
     };
   },
 
-  async getCourseAttendance(courseId: string, date?: string) {
+  async getCourseAttendance(courseId: string, userId: string, date?: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { userRoles: { select: { role: { select: { name: true } } } } },
+    });
+    const roles = user?.userRoles.map(ur => ur.role.name) || [];
+    const hasElevatedAccess = roles.some(r => ['SUPER_ADMIN', 'REGISTRAR'].includes(r));
+    if (!hasElevatedAccess) {
+      const teachesCourse = await prisma.course.findFirst({
+        where: {
+          id: courseId,
+          OR: [
+            { lecturerId: userId },
+            { schedules: { some: { lecturerId: userId } } },
+          ],
+        },
+      });
+      if (!teachesCourse) {
+        throw new ForbiddenError('You do not have access to attendance for this course');
+      }
+    }
+
     const where: any = { courseId };
     if (date) {
       const dt = new Date(date);

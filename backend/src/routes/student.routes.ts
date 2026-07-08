@@ -9,14 +9,12 @@ import { createStudentSchema, updateStudentSchema } from '../utils/validators';
 const router = Router();
 
 const updateStudentStatusSchema = z.object({
-  body: z.object({
-    status: z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED', 'GRADUATED']),
-  }),
+  status: z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED', 'GRADUATED']),
 });
 
 router.get('/', authenticate, authorize('SUPER_ADMIN', 'REGISTRAR', 'DEPARTMENT_HEAD'), studentController.getAll);
 
-router.get('/:id', authenticate, studentController.getById);
+router.get('/:id', authenticate, authorize('SUPER_ADMIN', 'REGISTRAR', 'DEPARTMENT_HEAD'), studentController.getById);
 
 router.post('/', authenticate, authorize('SUPER_ADMIN', 'REGISTRAR'), validate(createStudentSchema), studentController.create);
 

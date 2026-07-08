@@ -1,15 +1,22 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+if (!process.env.JWT_REFRESH_SECRET) {
+  throw new Error('JWT_REFRESH_SECRET environment variable is required');
+}
+
 export const config = {
   port: parseInt(process.env.PORT || '5000'),
   nodeEnv: process.env.NODE_ENV || 'development',
   jwt: {
-    secret: process.env.JWT_SECRET || 'fallback-secret',
-    refreshSecret: process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret',
+    secret: process.env.JWT_SECRET,
+    refreshSecret: process.env.JWT_REFRESH_SECRET,
     expiresIn: process.env.JWT_EXPIRES_IN || '15m',
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
-  },
+  } as { secret: string; refreshSecret: string; expiresIn: string; refreshExpiresIn: string },
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
     apiKey: process.env.CLOUDINARY_API_KEY || '',

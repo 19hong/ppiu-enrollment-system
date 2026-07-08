@@ -22,7 +22,7 @@ export const notificationController = {
   async markAsRead(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const id = req.params.id as string;
-      const notification = await notificationService.markAsRead(id);
+      const notification = await notificationService.markAsRead(id, req.user!.userId);
       return ApiResponse.success(res, notification, 'Notification marked as read');
     } catch (error) {
       next(error);
@@ -61,7 +61,7 @@ export const notificationController = {
   async delete(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const id = req.params.id as string;
-      await notificationService.delete(id);
+      await notificationService.delete(id, req.user!.userId);
       return ApiResponse.success(res, null, 'Notification deleted successfully');
     } catch (error) {
       next(error);

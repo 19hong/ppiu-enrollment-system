@@ -1,5 +1,5 @@
 import prisma from '../config/database';
-import { NotFoundError } from '../utils/errors';
+import { ForbiddenError, NotFoundError } from '../utils/errors';
 import { paginate } from '../utils/helpers';
 
 export const notificationService = {
@@ -40,13 +40,17 @@ export const notificationService = {
     };
   },
 
-  async markAsRead(notificationId: string) {
+  async markAsRead(notificationId: string, userId: string) {
     const notification = await prisma.notification.findUnique({
       where: { id: notificationId },
     });
 
     if (!notification) {
       throw new NotFoundError('Notification not found');
+    }
+
+    if (notification.userId !== userId) {
+      throw new ForbiddenError('You do not have access to this notification');
     }
 
     const updated = await prisma.notification.update({
@@ -118,10 +122,14 @@ export const notificationService = {
     return { count: notifications.count };
   },
 
-  async delete(id: string) {
+  async delete(id: string, userId: string) {
     const notification = await prisma.notification.findUnique({ where: { id } });
     if (!notification) {
       throw new NotFoundError('Notification not found');
+    }
+
+    if (notification.userId !== userId) {
+      throw new ForbiddenError('You do not have access to this notification');
     }
 
     await prisma.notification.delete({ where: { id } });
