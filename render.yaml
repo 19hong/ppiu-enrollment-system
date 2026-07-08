@@ -6,16 +6,14 @@ services:
     plan: free
     rootDir: backend
     buildCommand: npm install --legacy-peer-deps && npx prisma generate && npm run build
-    startCommand: npx prisma migrate deploy && node dist/index.js
+    startCommand: node dist/index.js
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: "5000"
       - key: DATABASE_URL
-        fromDatabase:
-          name: ppiu-enrollment-db
-          property: connectionString
+        value: postgresql://neondb_owner:npg_mIib6rlhvcH7@ep-divine-cake-aoobb6by.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_REFRESH_SECRET
@@ -32,10 +30,3 @@ services:
         value: "587"
       - key: SMTP_SECURE
         value: false
-
-databases:
-  - name: ppiu-enrollment-db
-    region: singapore
-    plan: free
-    databaseName: ppiu_enrollment
-    user: ppiu_user
