@@ -43,7 +43,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const token = localStorage.getItem('accessToken');
       if (token) {
         const response = await authService.getProfile();
-        setUser(response.data);
+        setUser({
+          ...response.data,
+          roles: response.data.userRoles?.map((ur: any) => ur.role.name) || [],
+        });
       }
     } catch {
       localStorage.removeItem('accessToken');
@@ -63,7 +66,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { accessToken, refreshToken, user: userData } = response.data;
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
-    setUser(userData);
+    setUser({
+      ...userData,
+      roles: userData.userRoles?.map((ur: any) => ur.role.name) || [],
+    });
   };
 
   const register = async (data: { email: string; password: string; firstName: string; lastName: string; phone?: string }) => {
