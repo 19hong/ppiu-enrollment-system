@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { GraduationCap, Eye, EyeOff, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 
@@ -40,6 +41,7 @@ const registerSchema = z
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
+  const router = useRouter();
   const { register: registerUser } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -81,6 +83,7 @@ export default function RegisterPage() {
   };
 
   if (success) {
+    setTimeout(() => router.push('/login'), 3000);
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -97,9 +100,12 @@ export default function RegisterPage() {
             <CheckCircle className="w-8 h-8 text-green-600" />
           </motion.div>
           <h2 className="text-2xl font-bold text-card-foreground mb-2">Registration Successful!</h2>
-          <p className="text-muted-foreground mb-6">
-            Thank you for creating an account. Please check your email to verify your email address
+          <p className="text-muted-foreground mb-2">
+            Your account has been created. Please check your email to verify your email address
             before signing in.
+          </p>
+          <p className="text-sm text-muted-foreground mb-6">
+            Redirecting to login...
           </p>
           <Link href="/login">
             <Button className="bg-primary hover:bg-primary/90">Go to Sign In</Button>

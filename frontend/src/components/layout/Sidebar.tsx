@@ -24,6 +24,7 @@ import {
   ClipboardCheck,
   UserCheck,
   Megaphone,
+  Bell,
   BarChart3,
   Settings,
   ChevronDown,
@@ -149,6 +150,12 @@ function useNavigation(): NavSection[] {
     {
       title: 'Communication',
       items: [
+        {
+          title: 'Notifications',
+          href: '/notifications',
+          icon: Bell,
+          roles: undefined,
+        },
         {
           title: 'Announcements',
           href: '/announcements',
